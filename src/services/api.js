@@ -5,7 +5,6 @@ class Api {
     #weatherUrl = 'http://dataservice.accuweather.com/forecasts/v1/daily/1day/'
 
     #geoPositionApiKey = 'vGawnsJPU3fVEdh9N8oKGAFMuOcgN8aZ'
-    #weatherApiKey = '3BFGYrK2E16wZtZh1AABPGtBBr9iOfHt'
     #api = axios.create()
 
     constructor() {
@@ -14,18 +13,26 @@ class Api {
 
             config.params.details = 'true'
             config.params.language = 'pt-br'
+            config.params.apikey = this.#geoPositionApiKey
 
             return config
         })
     }
 
     async getCity(lat, lon) {
-        const response = await axios.get(this.#geopositionUrl, {
+        const response = await this.#api.get(this.#geopositionUrl, {
             params: {
                 q: `${lat},${lon}`,
-                apikey: this.#geoPositionApiKey
             }
         })
+            .then(response => response.data)
+            .catch(err => { console.log(err); return false })
+
+        return response
+    }
+
+    async getWeather(city) {
+        const response = await this.#api.get(`${this.#weatherUrl}/${city}`)
             .then(response => response.data)
             .catch(err => { console.log(err); return false })
 

@@ -68,6 +68,9 @@ const styles = StyleSheet.create({
             width: -3,
             height: 3
         }
+    },
+    content: {
+        marginTop: 16,
     }
 })
 

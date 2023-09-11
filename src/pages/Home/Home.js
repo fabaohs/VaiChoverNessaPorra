@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Alert, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { Image } from 'expo-image'
 import { global } from "../../styles/global";
 import { Gradient } from "../../components/Gradient";
@@ -13,26 +13,48 @@ import Api from "../../services/api";
 
 export default function Home() {
 
-    const getLatLon = async () => {
+    const [currentCity, setCurrentCity] = useState('')
+    const [forecast, setForecast] = useState([])
+
+    const getCurrentCity = async () => {
         const { status, granted } = await Location.requestForegroundPermissionsAsync()
         if (!granted) {
-            return Alert.alert('Permissão de localização negada.')
+            return Alert.alert('Opss', 'Você precisa permitir o acesso a localização para usar o app.')
         }
 
         const { coords } = await Location.getCurrentPositionAsync()
-        console.log(coords)
 
         const { latitude, longitude } = coords
         const response = await Api.getCity(latitude, longitude)
-        console.log(response)
 
         if (!response) {
             return Alert.alert('Ops...', 'Parece que ocorreu um erro! Tente novamente.')
         }
+
+        const { Key, LocalizedName } = response
+        setCurrentCity(LocalizedName)
+
+        return getCurrentWeather(Key)
+    }
+
+    const getCurrentWeather = async (city) => {
+        if (!city) {
+            return Alert.alert('Ops...', 'Parece que ocorreu um erro! Tente novamente.')
+        }
+
+        const response = await Api.getWeather(city)
+
+        if (!response) {
+            return Alert.alert('Ops...', 'Parece que ocorreu um erro! Tente novamente.')
+        }
+
+        console.log('Weather response', response)
+        setForecast(response.DailyForecasts[0])
+        return
     }
 
     useEffect(() => {
-        getLatLon()
+        getCurrentCity()
     }, [])
 
     const getDate = () => {
@@ -44,7 +66,6 @@ export default function Home() {
 
         const dia = data.getDate();
         const mes = meses[data.getMonth()];
-        const ano = data.getFullYear();
 
         return `${dia} de ${mes}`
     }
@@ -53,13 +74,17 @@ export default function Home() {
 
         <View>
             <Gradient.Linear.GlobalBg>
+                <ScrollView style={{ height: 300, width: 300 }}>
+                    <Text>{JSON.stringify(forecast, null, 2)}</Text>
+                </ScrollView>
+
                 <View style={global.containerGlobal}>
 
                     {/* HEADER */}
                     <View style={styles.header}>
                         <View style={styles.inputHeader}>
                             <MaterialIcons name="place" size={24} color={palette.solid.white} />
-                            <Text style={styles.headerText}>Brasília</Text>
+                            <Text style={styles.headerText}>{currentCity}</Text>
                             <MaterialIcons name="keyboard-arrow-down" size={24} color={palette.solid.white} />
                         </View>
                         <View>
@@ -79,8 +104,22 @@ export default function Home() {
 
                         {/* CARD */}
                         <BlurView intensity={40} style={styles.card} tint="light">
-                            <Text style={styles.title}>Vai chover nessa porra?</Text>
-                            <Text style={styles.text}>{getDate()}</Text>
+                            {/* CARD HEADER */}
+                            <View>
+                                <Text style={styles.title}>Vai chover nessa porra?</Text>
+                                <Text style={styles.text}>{getDate()}</Text>
+                            </View>
+
+                            {/* CARD CONTENT */}
+                            <View style={styles.content}>
+                                <Text style={{ textAlign: 'center', fontSize: 100, color: '#ffffff' }}>
+                                    {
+                                        forecast
+                                            ? forecast.Temperature.Maximum.Value
+                                            : ''
+                                    }
+                                </Text>
+                            </View>
                         </BlurView>
                     </View>
                 </View>
