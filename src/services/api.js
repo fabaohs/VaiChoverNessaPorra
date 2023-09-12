@@ -12,6 +12,7 @@ class Api {
             config.params = config.params || {}
 
             config.params.details = 'true'
+            config.params.metric = 'true'
             config.params.language = 'pt-br'
             config.params.apikey = this.#geoPositionApiKey
 

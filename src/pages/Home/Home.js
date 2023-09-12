@@ -14,7 +14,8 @@ import Api from "../../services/api";
 export default function Home() {
 
     const [currentCity, setCurrentCity] = useState('')
-    const [forecast, setForecast] = useState([])
+    const [forecast, setForecast] = useState({})
+    const [willRainPhrase, setWillRainPhrase] = useState('')
 
     const getCurrentCity = async () => {
         const { status, granted } = await Location.requestForegroundPermissionsAsync()
@@ -37,6 +38,18 @@ export default function Home() {
         return getCurrentWeather(Key)
     }
 
+    const getPhrase = (rainProbability) => {
+        if (rainProbability < 20) {
+            return setWillRainPhrase('Não vai chover nessa porra')
+        }
+
+        if (rainProbability < 50) {
+            return setWillRainPhrase('Pode ser que chova nessa porra')
+        }
+
+        return setWillRainPhrase('Vai chover nessa porra')
+    }
+
     const getCurrentWeather = async (city) => {
         if (!city) {
             return Alert.alert('Ops...', 'Parece que ocorreu um erro! Tente novamente.')
@@ -48,8 +61,11 @@ export default function Home() {
             return Alert.alert('Ops...', 'Parece que ocorreu um erro! Tente novamente.')
         }
 
+        const dailyForecasts = response.DailyForecasts[0]
         console.log('Weather response', response)
-        setForecast(response.DailyForecasts[0])
+
+        getPhrase(dailyForecasts.Day.RainProbability)
+        setForecast(dailyForecasts)
         return
     }
 
@@ -112,13 +128,20 @@ export default function Home() {
 
                             {/* CARD CONTENT */}
                             <View style={styles.content}>
-                                <Text style={{ textAlign: 'center', fontSize: 100, color: '#ffffff' }}>
-                                    {
-                                        forecast
-                                            ? forecast.Temperature.Maximum.Value
-                                            : ''
-                                    }
-                                </Text>
+                                {Object.keys(forecast).length > 0
+                                    ? (
+                                        <>
+                                            <Text style={{ textAlign: 'center', fontSize: 70, color: '#ffffff' }}>
+                                                {forecast.Temperature.Maximum.Value}°
+                                            </Text>
+
+                                            <Text style={{ marginTop: 12, textAlign: 'center', color: palette.solid.white, fontSize: 24 }}>
+                                                {willRainPhrase}
+                                            </Text>
+                                        </>
+                                    )
+                                    : null
+                                }
                             </View>
                         </BlurView>
                     </View>
