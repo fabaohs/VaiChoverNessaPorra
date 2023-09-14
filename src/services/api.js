@@ -1,29 +1,31 @@
 import axios from "axios";
 
 class Api {
-    #geopositionUrl = 'http://dataservice.accuweather.com/locations/v1/cities/geoposition/search'
-    #weatherUrl = 'http://dataservice.accuweather.com/forecasts/v1/daily/1day/'
+    #baseUrl = 'https://api.tomorrow.io/v4/weather/forecast'
 
-    #geoPositionApiKey = 'vGawnsJPU3fVEdh9N8oKGAFMuOcgN8aZ'
+    #apikey = 'wBykIj0F2H0yv3TpijbeQVVvQaipx3fR'
+
     #api = axios.create()
 
     constructor() {
         this.#api.interceptors.request.use(config => {
-            config.params = config.params || {}
+            config.baseURL = this.#baseUrl
 
-            config.params.details = 'true'
-            config.params.metric = 'true'
-            config.params.language = 'pt-br'
-            config.params.apikey = this.#geoPositionApiKey
+            config.params = config.params || {}
+            config.params.apikey = this.#apikey
 
             return config
         })
     }
 
     async getCity(lat, lon) {
-        const response = await this.#api.get(this.#geopositionUrl, {
+        console.log('Latitude e Longitude', { lat, lon })
+
+        const response = await this.#api.get('', {
             params: {
-                q: `${lat},${lon}`,
+                location: `${lat},${lon}`,
+                timesteps: '1d',
+                units: 'metric',
             }
         })
             .then(response => response.data)
@@ -32,12 +34,22 @@ class Api {
         return response
     }
 
-    async getWeather(city) {
-        const response = await this.#api.get(`${this.#weatherUrl}/${city}`)
-            .then(response => response.data)
-            .catch(err => { console.log(err); return false })
+    async searchCity(city) {
+        //     console.log(city)
 
-        return response
+        //     if (city === '') {
+        //         console.log('City is empty')
+        //         return
+        //     }
+
+        //     const response = await this.#api.get(`${this.#getCityUrl}?q=${city}`, {
+        //         params: { apikey: this.#searchCityApiKey }
+        //     })
+        //         .then(response => response.data)
+        //         .catch(err => { console.log(err); return false })
+
+        //     return response
+        // }
     }
 }
 

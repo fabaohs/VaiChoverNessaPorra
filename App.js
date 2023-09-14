@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 export default function App() {
 
   return (
-    <SafeAreaView >
+    <SafeAreaView>
       <StatusBar style="auto" hidden />
       <Home />
     </SafeAreaView>

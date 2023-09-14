@@ -15,6 +15,8 @@ const palette = {
     },
     solid: {
         white: '#fff',
+        whiteSmoke: '#FCFCFC',
+        silver: '#EDEDED',
         purple: '#444E72'
     }
 }
