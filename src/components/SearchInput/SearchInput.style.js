@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
         height: 'auto',
 
         borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
+        borderBottomRightRadius: 30
     },
     inputContainer: {
         backgroundColor: solidColors.silver,
@@ -35,8 +35,18 @@ const styles = StyleSheet.create({
     input: {
         color: palette.solid.purple,
         fontSize: 18,
-        width: '100%'
-    }
+        width: '75%'
+    },
+    cities: {
+        marginTop: 41,
+        height: 120
+    },
+    cityName: {
+        color: palette.solid.purple,
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8
+    },
 })
 
 export default styles

@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
     },
     content: {
         marginTop: 16,
-    }
+        width: '100%',
+    },
 })
 
 export { styles }

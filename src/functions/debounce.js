@@ -1,12 +1,11 @@
 export default function debounce(func, delay) {
-    let timeoutId;
-
-    return function (...args) {
-        clearTimeout(timeoutId);
-        console.log('args', args)
-
-        timeoutId = setTimeout(() => {
-            func()
+    let timerId;
+    return (...args) => {
+        if (timerId) {
+            clearTimeout(timerId);
+        }
+        timerId = setTimeout(() => {
+            func.apply();
         }, delay);
     };
 }

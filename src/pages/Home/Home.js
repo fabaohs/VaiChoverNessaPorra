@@ -22,7 +22,7 @@ export default function Home() {
     const getCurrentCity = async () => {
         const { status, granted } = await Location.requestForegroundPermissionsAsync()
         if (!granted) {
-            return Alert.alert('Opss', 'Você precisa permitir o acesso a localização para usar o app.')
+            return Alert.alert('Ops', 'Você precisa permitir o acesso a localização para usar o app.')
         }
 
         const { coords } = await Location.getCurrentPositionAsync()
@@ -47,12 +47,22 @@ export default function Home() {
     }
 
     const getPhrase = (rainProbability) => {
-        if (rainProbability >= 50) {
+        console.log('Rain Probability', rainProbability)
+
+        if (rainProbability >= 80) {
             return setWillRainPhrase('Vai chover nessa porra')
         }
 
-        if (rainProbability > 0) {
+        if (rainProbability >= 60) {
+            return setWillRainPhrase('Provavelmente vai chover nessa porra')
+        }
+
+        if (rainProbability >= 40) {
             return setWillRainPhrase('Talvez chova nessa porra')
+        }
+
+        if (rainProbability < 20 && rainProbability >= 10) {
+            return setWillRainPhrase('Pouco provável que chova nessa porra')
         }
 
         return setWillRainPhrase('Não vai chover nessa porra')

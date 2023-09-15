@@ -4,6 +4,10 @@ const palette = {
             globalBg: {
                 blueBg1: '#49A8EF',
                 blueBg2: '#4A91FF'
+            },
+            searchContainerBg: {
+                bg1: '#FCFCFC',
+                bg2: '#ffffff'
             }
         },
         radial: {

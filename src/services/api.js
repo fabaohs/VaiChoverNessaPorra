@@ -1,18 +1,17 @@
 import axios from "axios";
 
 class Api {
-    #baseUrl = 'https://api.tomorrow.io/v4/weather/forecast'
+    #tomorrowApiUrl = 'https://api.tomorrow.io/v4/weather/forecast'
+    #openWeatherApiUrl = 'http://api.openweathermap.org/geo/1.0/direct'
 
-    #apikey = 'wBykIj0F2H0yv3TpijbeQVVvQaipx3fR'
+    #tomorrowApiKey = 'wBykIj0F2H0yv3TpijbeQVVvQaipx3fR'
+    #openWeatherApiKey = '8d73e549e7b857c5e74599ee42b94991'
 
     #api = axios.create()
 
     constructor() {
         this.#api.interceptors.request.use(config => {
-            config.baseURL = this.#baseUrl
-
             config.params = config.params || {}
-            config.params.apikey = this.#apikey
 
             return config
         })
@@ -21,11 +20,32 @@ class Api {
     async getCity(lat, lon) {
         console.log('Latitude e Longitude', { lat, lon })
 
-        const response = await this.#api.get('', {
+        const response = await this.#api.get(this.#tomorrowApiUrl, {
             params: {
                 location: `${lat},${lon}`,
                 timesteps: '1d',
                 units: 'metric',
+                apikey: this.#tomorrowApiKey
+            }
+        })
+            .then(response => response.data)
+            .catch(err => { console.log(err); return false })
+        console.log(response)
+        return response
+    }
+
+    async searchCity(city) {
+        console.log(city)
+
+        if (city === '') {
+            return []
+        }
+
+        const response = await this.#api.get(this.#openWeatherApiUrl, {
+            params: {
+                appid: this.#openWeatherApiKey,
+                q: city,
+                limit: 100
             }
         })
             .then(response => response.data)
@@ -33,24 +53,7 @@ class Api {
 
         return response
     }
-
-    async searchCity(city) {
-        //     console.log(city)
-
-        //     if (city === '') {
-        //         console.log('City is empty')
-        //         return
-        //     }
-
-        //     const response = await this.#api.get(`${this.#getCityUrl}?q=${city}`, {
-        //         params: { apikey: this.#searchCityApiKey }
-        //     })
-        //         .then(response => response.data)
-        //         .catch(err => { console.log(err); return false })
-
-        //     return response
-        // }
-    }
 }
+
 
 export default new Api()
