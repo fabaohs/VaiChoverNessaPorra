@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, TextInput, Text, View, Pressable, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from 'expo-image'
 import { global } from "../../styles/global";
 import { Gradient } from "../../components/Gradient";
 import { styles } from './Home.style'
 import { BlurView } from 'expo-blur';
+import LottieView from 'lottie-react-native';
 import * as Location from 'expo-location'
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons/'
@@ -12,12 +13,18 @@ import palette from "../../styles/palette";
 import Api from "../../services/api";
 import SearchInput from "../../components/SearchInput/SearchInput";
 
+import sunny from '../../../assets/animations/sunny.json'
+import rain from '../../../assets/animations/rain.json'
+import cloudy from '../../../assets/animations/cloudy.json'
+
 export default function Home() {
 
     const [currentCity, setCurrentCity] = useState('')
     const [forecast, setForecast] = useState({})
     const [willRainPhrase, setWillRainPhrase] = useState('')
     const [showSearch, setShowSearch] = useState(false)
+    const [animationPath, setAnimationPath] = useState('')
+    const animation = useRef(null);
 
     const getCurrentCity = async () => {
         const { status, granted } = await Location.requestForegroundPermissionsAsync()
@@ -28,6 +35,7 @@ export default function Home() {
         const { coords } = await Location.getCurrentPositionAsync()
 
         const { latitude, longitude } = coords
+
         const response = await Api.getCity(latitude, longitude)
 
         if (!response) {
@@ -50,21 +58,26 @@ export default function Home() {
         console.log('Rain Probability', rainProbability)
 
         if (rainProbability >= 80) {
+            setAnimationPath(rain)
             return setWillRainPhrase('Vai chover nessa porra')
         }
 
         if (rainProbability >= 60) {
+            setAnimationPath(cloudy)
             return setWillRainPhrase('Provavelmente vai chover nessa porra')
         }
 
         if (rainProbability >= 40) {
+            setAnimationPath(cloudy)
             return setWillRainPhrase('Talvez chova nessa porra')
         }
 
         if (rainProbability < 20 && rainProbability >= 10) {
+            setAnimationPath(sunny)
             return setWillRainPhrase('Pouco provável que chova nessa porra')
         }
 
+        setAnimationPath(sunny)
         return setWillRainPhrase('Não vai chover nessa porra')
     }
 
@@ -130,10 +143,10 @@ export default function Home() {
                     {/* MAIN CONTENT */}
                     <View style={styles.main}>
                         <View style={styles.imageWrapper}>
-                            <Image
-                                source={require('../../../assets/images/Cloudy.png')}
-                                style={styles.image}
-                                contentFit="cover"
+                            <LottieView
+                                autoPlay
+                                ref={animation}
+                                source={animationPath}
                             />
                         </View>
 
@@ -169,5 +182,4 @@ export default function Home() {
         </View >
 
     )
-
 }

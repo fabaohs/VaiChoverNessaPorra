@@ -30,7 +30,7 @@ class Api {
         })
             .then(response => response.data)
             .catch(err => { console.log(err); return false })
-        console.log(response)
+        console.log('Response', response)
         return response
     }
 
