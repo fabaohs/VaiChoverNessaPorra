@@ -24,10 +24,11 @@ export default function Home() {
     const [willRainPhrase, setWillRainPhrase] = useState('')
     const [showSearch, setShowSearch] = useState(false)
     const [animationPath, setAnimationPath] = useState('')
+    const [isBgSunny, setIsBgSunny] = useState(false)
     const animation = useRef(null);
 
     const getCurrentCity = async () => {
-        const { status, granted } = await Location.requestForegroundPermissionsAsync()
+        const { granted } = await Location.requestForegroundPermissionsAsync()
         if (!granted) {
             return Alert.alert('Ops', 'Você precisa permitir o acesso a localização para usar o app.')
         }
@@ -59,24 +60,29 @@ export default function Home() {
 
         if (rainProbability >= 80) {
             setAnimationPath(rain)
+            setIsBgSunny(false)
             return setWillRainPhrase('Vai chover nessa porra')
         }
 
         if (rainProbability >= 60) {
             setAnimationPath(cloudy)
+            setIsBgSunny(false)
             return setWillRainPhrase('Provavelmente vai chover nessa porra')
         }
 
         if (rainProbability >= 40) {
             setAnimationPath(cloudy)
+            setIsBgSunny(true)
             return setWillRainPhrase('Talvez chova nessa porra')
         }
 
         if (rainProbability < 20 && rainProbability >= 10) {
             setAnimationPath(sunny)
+            setIsBgSunny(true)
             return setWillRainPhrase('Pouco provável que chova nessa porra')
         }
 
+        setIsBgSunny(true)
         setAnimationPath(sunny)
         return setWillRainPhrase('Não vai chover nessa porra')
     }
@@ -105,7 +111,7 @@ export default function Home() {
     return (
 
         <View>
-            <Gradient.Linear.GlobalBg>
+            <Gradient.Linear.GlobalBg bgSunny={isBgSunny}>
                 <View style={global.containerGlobal}>
 
                     {/* HEADER */}
@@ -143,11 +149,16 @@ export default function Home() {
                     {/* MAIN CONTENT */}
                     <View style={styles.main}>
                         <View style={styles.imageWrapper}>
-                            <LottieView
-                                autoPlay
-                                ref={animation}
-                                source={animationPath}
-                            />
+                            {animationPath !== ''
+                                ? (
+                                    <LottieView
+                                        autoPlay
+                                        ref={animation}
+                                        source={animationPath}
+                                    />
+
+                                ) : null
+                            }
                         </View>
 
                         {/* CARD */}

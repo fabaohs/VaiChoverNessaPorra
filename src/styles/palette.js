@@ -5,6 +5,11 @@ const palette = {
                 blueBg1: '#49A8EF',
                 blueBg2: '#4A91FF'
             },
+            whiteGlobalBg: {
+                blueBg1: '#47BBE2',
+                blueBg2: '#47BFDF',
+                blueBg3: '#4A91FF'
+            },
             searchContainerBg: {
                 bg1: '#FCFCFC',
                 bg2: '#ffffff'

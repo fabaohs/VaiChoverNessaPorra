@@ -6,7 +6,7 @@ import SearchContainerBg from "./Linear/SearchContainerBg"
 const Gradient = {
     Linear: {
         GlobalBg: GlobalBg,
-        SearchContainerBg: SearchContainerBg
+        SearchContainerBg: SearchContainerBg,
     }
 }
 

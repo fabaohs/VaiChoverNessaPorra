@@ -4,11 +4,16 @@ import { StyleSheet } from 'react-native';
 
 const linearGradients = palette.degrade.linear
 
-export default function GlobalBg({ children }) {
+export default function GlobalBg({ bgSunny, children }) {
+
+    const sunnyBgColors = [linearGradients.whiteGlobalBg.blueBg1, linearGradients.whiteGlobalBg.blueBg2, linearGradients.whiteGlobalBg.blueBg3]
+
+    const rainBgColors = [linearGradients.globalBg.blueBg1, linearGradients.globalBg.blueBg2]
+
     return (
         <LinearGradient
             style={styles.bg}
-            colors={[linearGradients.globalBg.blueBg1, linearGradients.globalBg.blueBg2]}
+            colors={bgSunny ? sunnyBgColors : rainBgColors}
         >
             {children}
         </LinearGradient>
