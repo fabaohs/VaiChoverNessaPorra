@@ -11,6 +11,7 @@ import * as Location from 'expo-location'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons/'
 import palette from "../../styles/palette";
 import Api from "../../services/api";
+import SplashScreen from "../../components/SplashScreen/SplashScreen";
 import SearchInput from "../../components/SearchInput/SearchInput";
 
 import sunny from '../../../assets/animations/sunny.json'
@@ -27,17 +28,21 @@ export default function Home() {
     const [isBgSunny, setIsBgSunny] = useState(false)
     const animation = useRef(null);
 
-    const getCurrentCity = async () => {
+    const getPermission = async () => {
         const { granted } = await Location.requestForegroundPermissionsAsync()
         if (!granted) {
-            return Alert.alert('Ops', 'Você precisa permitir o acesso a localização para usar o app.')
+            return Alert.alert('Ops...', 'Você precisa permitir o acesso a localização para usar o app.')
         }
 
         const { coords } = await Location.getCurrentPositionAsync()
 
         const { latitude, longitude } = coords
 
-        const response = await Api.getCity(latitude, longitude)
+        return getCity(latitude, longitude)
+    }
+
+    const getCity = async (lat, lon) => {
+        const response = await Api.getCity(lat, lon)
 
         if (!response) {
             console.log('Failed to get current city')
@@ -45,8 +50,7 @@ export default function Home() {
         }
 
         const { timelines } = response
-        console.log('TimeLines', timelines.daily.values)
-        const cityData = await Location.reverseGeocodeAsync({ latitude, longitude })
+        const cityData = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon })
         const city = cityData[0].city === null ? cityData[0].subregion : cityData[0].city
 
         setCurrentCity(city)
@@ -56,8 +60,6 @@ export default function Home() {
     }
 
     const getPhrase = (rainProbability) => {
-        console.log('Rain Probability', rainProbability)
-
         if (rainProbability >= 80) {
             setAnimationPath(rain)
             setIsBgSunny(false)
@@ -88,7 +90,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        getCurrentCity()
+        getPermission()
     }, [])
 
     const getDate = () => {
@@ -109,88 +111,90 @@ export default function Home() {
     }
 
     return (
+        <>
+            <View>
+                <Gradient.Linear.GlobalBg bgSunny={isBgSunny}>
+                    <View style={global.containerGlobal}>
 
-        <View>
-            <Gradient.Linear.GlobalBg bgSunny={isBgSunny}>
-                <View style={global.containerGlobal}>
-
-                    {/* HEADER */}
-                    <View style={StyleSheet.compose(styles.header, { marginBottom: showSearch ? 28 : 0 })}>
-                        {showSearch
-                            ? (
-                                <>
-                                    <SearchInput onClose={handleShowSearch} />
-                                </>
-                            ) : (
-                                <>
-                                    <View>
-                                        <TouchableOpacity
-                                            style={styles.inputHeader}
-                                            onPress={handleShowSearch}
-                                        >
-                                            <MaterialIcons name="place" size={24} color={palette.solid.white} />
-                                            <Text style={styles.headerText}>
-                                                {currentCity}
-                                            </Text>
-                                            <MaterialIcons name="keyboard-arrow-down" size={24} color={palette.solid.white} />
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View>
-                                        <MaterialIcons name="notifications" size={24} color={palette.solid.white} />
-                                    </View>
-                                </>
-                            )
-
-                        }
-
-
-                    </View>
-
-                    {/* MAIN CONTENT */}
-                    <View style={styles.main}>
-                        <View style={styles.imageWrapper}>
-                            {animationPath !== ''
+                        {/* HEADER */}
+                        <View style={StyleSheet.compose(styles.header, { marginBottom: showSearch ? 28 : 0 })}>
+                            {showSearch
                                 ? (
-                                    <LottieView
-                                        autoPlay
-                                        ref={animation}
-                                        source={animationPath}
-                                    />
+                                    <>
+                                        <SearchInput onClose={handleShowSearch} getCity={getCity} />
+                                    </>
+                                ) : (
+                                    <>
+                                        <View>
+                                            <TouchableOpacity
+                                                style={styles.inputHeader}
+                                                onPress={handleShowSearch}
+                                            >
+                                                <MaterialIcons name="place" size={24} color={palette.solid.white} />
+                                                <Text style={styles.headerText}>
+                                                    {currentCity}
+                                                </Text>
+                                                <MaterialIcons name="keyboard-arrow-down" size={24} color={palette.solid.white} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View>
+                                            <MaterialIcons name="notifications" size={24} color={palette.solid.white} />
+                                        </View>
+                                    </>
+                                )
 
-                                ) : null
                             }
+
+
                         </View>
 
-                        {/* CARD */}
-                        <BlurView intensity={40} style={styles.card} tint="light">
-                            {/* CARD HEADER */}
-                            <View>
-                                <Text style={styles.title}>Vai chover nessa porra?</Text>
-                                <Text style={styles.text}>{getDate()}</Text>
-                            </View>
-
-                            {/* CARD CONTENT */}
-                            <View style={styles.content}>
-                                {Object.keys(forecast).length > 0
+                        {/* MAIN CONTENT */}
+                        <View style={styles.main}>
+                            <View style={styles.imageWrapper}>
+                                {animationPath !== '' && !showSearch
                                     ? (
-                                        <>
-                                            <Text style={{ textAlign: 'center', fontSize: 70, color: '#ffffff' }}>
-                                                {Number(forecast.daily[0].values.temperatureApparentAvg).toFixed(1)}°
-                                            </Text>
+                                        <View style={styles.image}>
+                                            <LottieView
+                                                autoPlay
+                                                ref={animation}
+                                                source={animationPath}
+                                            />
+                                        </View>
 
-                                            <Text style={{ marginTop: 12, textAlign: 'center', color: palette.solid.white, fontSize: 24 }}>
-                                                {willRainPhrase}
-                                            </Text>
-                                        </>
-                                    )
-                                    : null
+                                    ) : null
                                 }
                             </View>
-                        </BlurView>
-                    </View>
-                </View >
-            </Gradient.Linear.GlobalBg >
-        </View >
 
+                            {/* CARD */}
+                            <BlurView intensity={40} style={styles.card} tint="light">
+                                {/* CARD HEADER */}
+                                <View>
+                                    <Text style={styles.title}>Vai chover nessa porra?</Text>
+                                    <Text style={styles.text}>{getDate()}</Text>
+                                </View>
+
+                                {/* CARD CONTENT */}
+                                <View style={styles.content}>
+                                    {Object.keys(forecast).length > 0
+                                        ? (
+                                            <>
+                                                <Text style={{ textAlign: 'center', fontSize: 70, color: '#ffffff' }}>
+                                                    {Number(forecast.daily[0].values.temperatureApparentAvg).toFixed(1)}°
+                                                </Text>
+
+                                                <Text style={{ marginTop: 12, textAlign: 'center', color: palette.solid.white, fontSize: 24 }}>
+                                                    {willRainPhrase}
+                                                </Text>
+                                            </>
+                                        )
+                                        : null
+                                    }
+                                </View>
+                            </BlurView>
+                        </View>
+                    </View >
+                </Gradient.Linear.GlobalBg >
+            </View>
+        </>
     )
 }

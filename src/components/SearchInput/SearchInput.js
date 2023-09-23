@@ -10,26 +10,28 @@ import debounce from "../../functions/debounce"
 import { FlashList } from "@shopify/flash-list"
 import { Gradient } from "../Gradient"
 
-export default function SearchInput({ onClose }) {
+export default function SearchInput({ onClose, getCity }) {
 
     const [city, setCity] = useState('')
     const [loading, setLoading] = useState(false)
     const [cities, setCities] = useState([])
 
-    const handleClose = (e) => {
-        e.preventDefault()
+    const handleClose = () => {
         onClose()
         return
     }
 
     const handleChange = (city) => {
-        setCity((prev) => {
-            return city
-        })
-        debounce(search, 2000)()
+        setCity(city)
+        debounce(() => search(city), 1500)()
     }
 
-    const search = async () => {
+    const search = async (city) => {
+        if (city.length < 2) {
+            setCities([])
+            return
+        }
+
         setLoading(true)
         const response = await api.searchCity(city)
         setLoading(false)
@@ -39,6 +41,18 @@ export default function SearchInput({ onClose }) {
         }
 
         return setCities(response)
+    }
+
+    const getCityWeather = async (lat, lon) => {
+        if (!lat || !lon) {
+            return Alert.alert('Ops...', 'Parece que ocorreu um erro! Tente novamente.')
+        }
+
+        setLoading(true)
+        await getCity(lat, lon)
+        setLoading(false)
+
+        return handleClose()
     }
 
     return (
@@ -65,14 +79,22 @@ export default function SearchInput({ onClose }) {
 
                 </View>
 
-                {cities.length > 0 ? (
+                {cities.length > 0 && !loading ? (
                     <View style={styles.cities}>
+                        <Text style={{ fontSize: 14, color: palette.solid.mutted, fontWeight: 'bold', marginBottom: 8 }}>Cidades encontradas: {`(${cities.length})`} </Text>
                         <FlashList
+                            estimatedItemSize={cities.length}
+                            keyExtractor={(item, index) => `${item.id}-${index}`}
                             data={cities}
+                            scrollEnabled
                             renderItem={({ item }) => {
-                                console.log(item)
                                 return (
-                                    <Text style={styles.cityName}>{item.name} - {item.country}</Text>
+                                    <Pressable
+                                        style={styles.cityButton}
+                                        onPress={() => getCityWeather(item.lat, item.lon)}
+                                    >
+                                        <Text style={styles.cityText}>{item.name} {` - ${item.state}`} - {item.country}</Text>
+                                    </Pressable>
                                 )
                             }}
                         />

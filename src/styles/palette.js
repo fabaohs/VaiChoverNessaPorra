@@ -12,7 +12,7 @@ const palette = {
             },
             searchContainerBg: {
                 bg1: '#FCFCFC',
-                bg2: '#ffffff'
+                bg2: '#bfbfbf'
             }
         },
         radial: {
@@ -26,6 +26,7 @@ const palette = {
         white: '#fff',
         whiteSmoke: '#FCFCFC',
         silver: '#EDEDED',
+        mutted: '#6E6E6E',
         purple: '#444E72'
     }
 }

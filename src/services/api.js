@@ -2,7 +2,7 @@ import axios from "axios";
 
 class Api {
     #tomorrowApiUrl = 'https://api.tomorrow.io/v4/weather/forecast'
-    #openWeatherApiUrl = 'http://api.openweathermap.org/geo/1.0/direct'
+    #openWeatherApiUrl = 'http://api.openweathermap.org/geo/1.0'
 
     #tomorrowApiKey = 'wBykIj0F2H0yv3TpijbeQVVvQaipx3fR'
     #openWeatherApiKey = '8d73e549e7b857c5e74599ee42b94991'
@@ -31,17 +31,12 @@ class Api {
             .then(response => response.data)
             .catch(err => { console.log(err); return false })
         console.log('Response', response)
+        console.log('Response', response.timelines.daily)
         return response
     }
 
     async searchCity(city) {
-        console.log(city)
-
-        if (city === '') {
-            return []
-        }
-
-        const response = await this.#api.get(this.#openWeatherApiUrl, {
+        const response = await this.#api.get(`${this.#openWeatherApiUrl}/direct`, {
             params: {
                 appid: this.#openWeatherApiKey,
                 q: city,
